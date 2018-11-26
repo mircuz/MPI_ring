@@ -35,14 +35,17 @@ int main( int argc, char** argv) {
 		//----del messaggio e con il malloc alloca, ad un puntatore, la memoria necessaria al messaggio---
 
 		MPI_Probe( (size-1), 0, MPI_COMM_WORLD, &status);
-		MPI_Recv( &handshake, 1 , MPI_INT, (rank-1 +size)%size, 0, MPI_COMM_WORLD,
+		MPI_Get_count( &status, MPI_INT, &counter_1);
+
+		int* sized_mem = (int*)malloc( sizeof(MPI_INT)*counter_1 );
+
+		MPI_Recv( &sized_mem, counter_1 , MPI_INT, (rank-1 +size)%size, 0, MPI_COMM_WORLD,
 						  MPI_STATUS_IGNORE);
 
-		MPI_Get_count( &status, MPI_INT, &counter_1);
 		//------------------------------------------------------------------------------------------------
 		printf("\nProcessor %d received from %d a message long %d, with tag %d\n", rank,
 				status.MPI_SOURCE, counter_1, status.MPI_TAG );
-		printf("The message is: %d \n", handshake);
+		printf("The message is: %d \n", sized_mem);
 
 
 	}
@@ -55,6 +58,6 @@ int main( int argc, char** argv) {
 
 
 	MPI_Finalize();
-	
+
 	return 0;
 }
